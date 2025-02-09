@@ -31,7 +31,7 @@ void progressBar(int len) {
         std::fill(temp + i, temp + len, '=');
         temp[len]='\0';
         std::cout << '\r' << '[' << temp << ']' << std::flush;
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        std::this_thread::sleep_for(std::chrono::milliseconds(250)); // Why the actual fuck doesnt this properly update the shits in the intellij terminal 😔
     }
     std::cout << '\r' << std::endl;
     showCursor();
