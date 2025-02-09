@@ -1,0 +1,6 @@
+# ninja log v6
+3	332	7608465745638477	build.ninja	e7bcbceaeb142364
+9	1831	7608465776829547	CMakeFiles/cppLearning.dir/main.cpp.obj	102ba60a3091b6c5
+1834	2102	7608465795075301	cppLearning.exe	b052e6a336371d2d
+16	1520	7608466194344108	CMakeFiles/cppLearning.dir/main.cpp.obj	102ba60a3091b6c5
+1520	1759	7608466209388667	cppLearning.exe	b052e6a336371d2d
