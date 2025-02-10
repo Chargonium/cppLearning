@@ -1,9 +1,10 @@
 #include <algorithm>
 #include <chrono>
+#include <csignal>
 #include <iostream>
 #include <thread>
 #include <windows.h>
-#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
 
 void hideCursor() {
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -56,10 +57,16 @@ std::string exec(const char* cmd) {
     return result;
 }
 
+void quit(int signal) {
+    if (signal == SIGINT) {
+        showCursor();
+        std::exit(signal);
+    }
+}
+
 int main() {
-
-    bool debounce = false;
-
+    int frame = 0;
+    int fps = 60;
     int mode;
 
     char buffer;
@@ -93,9 +100,9 @@ int main() {
     } else if (mode == 1) {
         std::cout << "Alright; Here have an random ahh window!" << std::endl;
 
-        sf::Window window(sf::VideoMode(800, 600), "My window");
+        sf::RenderWindow window(sf::VideoMode(800, 600), "My window");
         window.setVerticalSyncEnabled(true);
-        window.setFramerateLimit(60);
+        window.setFramerateLimit(fps);
 
         while (window.isOpen())
         {
@@ -108,14 +115,20 @@ int main() {
                     window.close();
             }
 
-            if (!window.hasFocus() && !debounce) {
-                debounce = true;
-                window.requestFocus();
-            } else if (!window.hasFocus() && debounce) {
-                debounce = false;
+            if (frame % 4 == 0) {
+                window.clear(sf::Color::White);
+            } else {
+                window.clear(sf::Color::Black);
             }
 
             window.display();
+            frame++;
+
+            std::signal(SIGINT, quit);
+
+            hideCursor();
+
+            std::cout << '\r' << frame << std::flush;
         }
     } else if (mode == -1) {
         return mode;
