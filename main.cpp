@@ -1,9 +1,9 @@
-#include <iostream>
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 #include <thread>
 #include <windows.h>
-
+#include <SFML/Window.hpp>
 
 void hideCursor() {
     HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -26,11 +26,13 @@ void showCursor() {
 void progressBar(int len, int duration) {
     hideCursor();
     for (int i = 1; i <= len; i++) {
+        int percentage = 100 / len * i;
         char temp[len+1];
         std::fill(temp, temp + i, '#');
         std::fill(temp + i, temp + len, '=');
         temp[len]='\0';
-        std::cout << '\r' << '[' << temp << ']' << std::flush;
+        std::cout << '\r' << percentage << "% ";
+        std::cout << '[' << temp << ']' << std::flush;
         std::this_thread::sleep_for(std::chrono::milliseconds(duration/len)); // Why the actual fuck doesnt this properly update the shits in the intellij terminal 😔
     }
     std::cout << '\r' << std::endl;
@@ -38,35 +40,86 @@ void progressBar(int len, int duration) {
 }
 
 std::string exec(const char* cmd) {
-    /// Thank you random stackoverflow answer
-    /// https://stackoverflow.com/questions/478898/how-do-i-execute-a-command-and-get-the-output-of-the-command-within-c-using-po
-
-    std::array<char, 128> buffer;
-    std::string result;
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-    if (!pipe) {
-        throw std::runtime_error("popen() failed!");
+    char buffer[128];
+    std::string result = "";
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    try {
+        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+            result += buffer;
+        }
+    } catch (...) {
+        pclose(pipe);
+        throw;
     }
-    while (fgets(buffer.data(), static_cast<int>(buffer.size()), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
+    pclose(pipe);
     return result;
 }
 
 int main() {
 
-     // Disable syncing with C stdio for performance
-    char input_buffer[1024];
-    std::cout << "What command do you wanna run bich? ";
-    std::cin.getline(input_buffer, 1024);
+    bool debounce = false;
 
-    std::cout << "Oh my god, Look at this W progress bar!" << std::endl;
-    progressBar(100, 500*strlen(input_buffer));
+    int mode;
 
-    std::string output;
-    output = exec(input_buffer);
+    char buffer;
 
-    std::cout << "Da command outputted this shi!" << std::endl << output << std::endl;
+    std::cout << "Oh my god, Im learning shit" << std::endl;
+    std::cout << "Anyways, progress bar or window (p/w) ";
+    std::cin >> buffer;
+
+    if (buffer == 'p') {
+        mode = 0;
+    } else if (buffer == 'w') {
+        mode = 1;
+    } else {
+        mode = -1;
+    }
+
+    if (mode == 0) {
+        // Disable syncing with C stdio for performance
+        char input_buffer[1024];
+        std::cout << "What command do you wanna run bich? ";
+        std::cin.ignore();
+        std::cin.getline(input_buffer, 1024);
+
+        std::cout << "Oh my god, Look at this W progress bar!" << std::endl;
+        progressBar(100, 500*strlen(input_buffer));
+
+        std::string output;
+        output = exec(input_buffer);
+
+        std::cout << "Da command outputted this shi!" << std::endl << output << std::endl;
+    } else if (mode == 1) {
+        std::cout << "Alright; Here have an random ahh window!" << std::endl;
+
+        sf::Window window(sf::VideoMode(800, 600), "My window");
+        window.setVerticalSyncEnabled(true);
+        window.setFramerateLimit(60);
+
+        while (window.isOpen())
+        {
+            // check all the window's events that were triggered since the last iteration of the loop
+            sf::Event event;
+            while (window.pollEvent(event))
+            {
+                // "close requested" event: we close the window
+                if (event.type == sf::Event::Closed)
+                    window.close();
+            }
+
+            if (!window.hasFocus() && !debounce) {
+                debounce = true;
+                window.requestFocus();
+            } else if (!window.hasFocus() && debounce) {
+                debounce = false;
+            }
+
+            window.display();
+        }
+    } else if (mode == -1) {
+        return mode;
+    }
 
     return 0;
 }
