@@ -61,8 +61,7 @@ int main() {
     std::cin.getline(input_buffer, 1024);
 
     std::cout << "Oh my god, Look at this W progress bar!" << std::endl;
-    progressBar(100, 2000);
-
+    progressBar(100, 500*strlen(input_buffer));
 
     std::string output;
     output = exec(input_buffer);
