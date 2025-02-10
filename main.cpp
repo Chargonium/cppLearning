@@ -111,11 +111,13 @@ int main() {
             while (window.pollEvent(event))
             {
                 // "close requested" event: we close the window
-                if (event.type == sf::Event::Closed)
+                if (event.type == sf::Event::Closed) {
                     window.close();
+                    quit(SIGINT);
+                }
             }
 
-            if (frame % 4 == 0) {
+            if (frame % 60 <= 30) {
                 window.clear(sf::Color::White);
             } else {
                 window.clear(sf::Color::Black);
@@ -128,7 +130,7 @@ int main() {
 
             hideCursor();
 
-            std::cout << '\r' << frame << std::flush;
+            std::cout << '\r' << "Frame: " << frame << std::flush;
         }
     } else if (mode == -1) {
         return mode;
