@@ -2,6 +2,7 @@
 #include <chrono>
 #include <csignal>
 #include <iostream>
+#include <fstream>
 #include <thread>
 #include <windows.h>
 #include <SFML/Graphics.hpp>
@@ -72,14 +73,16 @@ int main() {
     char buffer;
 
     std::cout << "Oh my god, Im learning shit" << std::endl;
-    std::cout << "Anyways, progress bar or window (p/w) ";
+    std::cout << "Anyways, progress bar, window or currency conversion (p/w/c) ";
     std::cin >> buffer;
 
-    if (buffer == 'p') {
+    if (buffer == 'p' || buffer == 'P') {
         mode = 0;
-    } else if (buffer == 'w') {
+    } else if (buffer == 'w' || buffer == 'W') {
         mode = 1;
-    } else {
+    } else if (buffer == 'c' || buffer == 'C') {
+        mode = 2;
+    }else {
         mode = -1;
     }
 
@@ -132,7 +135,20 @@ int main() {
 
             std::cout << '\r' << "Frame: " << frame << std::flush;
         }
-    } else if (mode == -1) {
+    } else if (mode == 2) {
+        std::cout << "Alright; Loading conversion file!" << std::endl;
+        std::ifstream conversionFile("../conversions.txt");
+        char reference[4];
+        conversionFile.read(reference, 3);
+        reference[4] = '\0';
+        std::cout << "Using '" << reference << "' as a reference currency!" << std::endl;
+        std::cout << "What currency do you want to convert to " << reference << "? ";
+        char currency[3];
+        std::cin.ignore();
+        std::cin >> currency;
+        std::cout << "Using '" << currency << "' as a currency!" << std::endl;
+    }
+    else {
         return mode;
     }
 
